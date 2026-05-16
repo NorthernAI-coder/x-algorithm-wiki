@@ -1,0 +1,9 @@
+# Topic tracker (internal)
+_topic_tracker.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Obsidian workspace state (per-machine)
+.obsidian/workspace.json

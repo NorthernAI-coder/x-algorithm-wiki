@@ -123,6 +123,7 @@ flowchart TB
 ## 相关页面
 
 - [[how-it-works]] —— 端到端白话总览
+- [[how-posts-are-picked]] —— 白话:帖子是怎么被选中的
 - [[glossary]] —— 术语速查表
 - [[faq]] —— 常见疑问
 - [[system-architecture]] —— 技术版系统架构

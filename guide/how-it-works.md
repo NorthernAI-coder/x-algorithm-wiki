@@ -111,6 +111,7 @@ flowchart TB
 ## 相关页面
 
 - [[the-five-components]] —— 五大组件白话速览
+- [[how-posts-are-picked]] —— 选帖收尾过程的白话版
 - [[glossary]] —— 术语速查表
 - [[faq]] —— 常见疑问
 - [[system-architecture]] —— 技术版系统架构总览

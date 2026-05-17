@@ -507,3 +507,4 @@ fn name(&self) -> &'static str {
 - [[run-pipeline]] —— 驱动一条 `CandidatePipeline::execute()` 跑起来的入口构件
 - [[filtering-pipeline]] —— `execute()` 第 ⑤、⑨ 步两道过滤的具体过滤器
 - [[scoring-and-ranking]] —— `execute()` 第 ⑥ 步打分阶段的具体打分器链
+- [[candidate-selection]] —— `execute()` 第 ⑦ 步选择阶段与选后成型步骤

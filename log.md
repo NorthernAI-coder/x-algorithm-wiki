@@ -40,3 +40,10 @@
 - how-it-works / the-five-components:出处表把核心结论对应到技术页 + 关键源码文件
 - glossary / faq:出处说明 + 借「详见」链到带源码锚点的技术页;faq 补全 2 处缺失链接
 - SCHEMA.md「Guide Pages」增"核心结论须可追溯"规定
+
+## [2026-05-17] create | 选帖过程页(技术 + 白话各 1)
+- 反馈:wiki 缺"如何选择帖子、选帖过程"专页 —— 原内容散在 candidate-pipeline-framework / candidate-pipeline / filtering-pipeline / home-mixer-orchestration
+- 新增 concepts/candidate-selection.md(技术页):Selector trait「排序+截断」、TopKScoreSelector、选后水合→过滤→截断、BlenderSelector
+- 新增 guide/how-posts-are-picked.md(白话页):选秀收尾类比,附「出处」表
+- index.md / README.md 更新为 27 页;6 个相关页补 [[candidate-selection]] / [[how-posts-are-picked]] 交叉链接
+- 创建 changelog/2026-05-17-candidate-selection.md

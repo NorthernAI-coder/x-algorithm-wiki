@@ -2,7 +2,7 @@
 
 > 内容目录。每个 wiki 页面按类型与分类列出,附一行摘要。
 > 查询前先读此文件定位相关页面。
-> Last updated: 2026-05-17 | Total pages: 25(4 guides + 16 concepts + 5 entities)| 5200+ lines
+> Last updated: 2026-05-17 | Total pages: 27(5 guides + 17 concepts + 5 entities)| 5500+ lines
 
 ## 白话导览(Guide)
 
@@ -12,6 +12,7 @@
 - [[the-five-components]] — 五大组件速览:每个组件是干嘛的、为什么需要它
 - [[glossary]] — 术语速查表:召回 / 排序 / 双塔 / 候选隔离… 一句话解释
 - [[faq]] — 常见疑问:为什么刷到陌生人、广告怎么插进来、点"不感兴趣"有没有用
+- [[how-posts-are-picked]] — 白话:帖子是怎么被选中的(打完分之后的选帖过程)
 
 ## 总览
 
@@ -24,6 +25,7 @@
 - [[candidate-pipeline-framework]] — 可复用流水线框架:7 个组件 trait、enable 门、并行/顺序执行模型
 - [[home-mixer-orchestration]] — 编排层:两条嵌套流水线、两个 gRPC 服务、候选源、数据模型
 - [[scoring-and-ranking]] — 3 个打分器:PhoenixScorer 取预测、RankingScorer 加权+多样性+OON、VMRanker
+- [[candidate-selection]] — 选帖过程:TopK 选择 → 选后水合/过滤 → 截断成型 → 外层组装
 - [[filtering-pipeline]] — 两道过滤:14 个预打分过滤器 + 3 个选后过滤器
 - [[ads-blending]] — 广告混排:safe-gap / partition-organic 两策略、品牌安全四档裁定
 
@@ -56,5 +58,6 @@
 
 ## Changelog
 
+- [[2026-05-17-candidate-selection]] — 新增"选帖过程"页:技术页 candidate-selection + 白话页 how-posts-are-picked
 - [[2026-05-17-plain-language-guide]] — 新增 4 页白话导览(guide/),面向快速理解
 - [[2026-05-16-initial-creation]] — 基于 xai-org/x-algorithm 源码深度分析,初始创建 21 页

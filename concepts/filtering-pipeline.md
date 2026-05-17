@@ -157,4 +157,5 @@ A:框架在 `run_filters` 里 `filter(|f| f.enable(query))` 直接跳过,并在 
 - [[candidate-pipeline-framework]] —— `Filter` trait 与顺序执行模型
 - [[home-mixer-orchestration]] —— 过滤器在内层流水线中的装配位置
 - [[scoring-and-ranking]] —— 过滤之后的打分阶段
+- [[candidate-selection]] —— 选后两道过滤所在的选择阶段
 - [[system-architecture]] —— 过滤在十阶段流水线中的位置

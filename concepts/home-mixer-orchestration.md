@@ -202,6 +202,7 @@ A:能。`ScoredPostsService` 就是直接暴露内层 `PhoenixCandidatePipeline`
 - [[candidate-pipeline]] —— `CandidatePipeline` 执行器
 - [[filtering-pipeline]] —— 内层流水线的过滤器
 - [[scoring-and-ranking]] —— 内层流水线的打分器
+- [[candidate-selection]] —— 内 / 外两层流水线的选择器与选后成型
 - [[ads-blending]] —— `BlenderSelector` 调用的广告混排
 - [[thunder-in-network-store]] —— `ThunderSource` 背后的站内库
 - [[phoenix-retrieval]] —— `PhoenixSource` 背后的召回模型

@@ -4,7 +4,7 @@ created: 2026-05-17
 updated: 2026-05-17
 type: guide
 tags: [guide, glossary, overview]
-sources: [README.md]
+sources: [home-mixer/scorers/ranking_scorer.rs, phoenix/recsys_retrieval_model.py, phoenix/grok.py, candidate-pipeline/candidate_pipeline.rs, grox/classifiers/content/classifier.py]
 ---
 
 # 术语速查表
@@ -67,6 +67,10 @@ sources: [README.md]
 | **Kafka** | 一条"消息流水线"。新帖子事件源源不断从 Kafka 流出,Thunder、Grox 在它下游接收。 | [[thunder-kafka-ingestion]] |
 | **保留期**(retention) | Thunder 只在内存里留最近一段时间(约两天)的帖子,过期自动清掉。 | [[thunder-kafka-ingestion]] |
 | **side effect** | 流水线的"收尾杂活":写缓存、发日志等。不影响给你的结果,在后台做。 | [[candidate-pipeline-framework]] |
+
+## 出处
+
+本表术语提炼自各技术页,不引入新定义。**每条「详见」的技术页都附 `文件:行号` 源码锚点** —— 顺着「详见」即可一路追到源码。术语的精确语义以技术页与源码为准。
 
 ## 相关页面
 

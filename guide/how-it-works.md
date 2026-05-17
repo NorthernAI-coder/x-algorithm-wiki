@@ -4,7 +4,7 @@ created: 2026-05-17
 updated: 2026-05-17
 type: guide
 tags: [guide, overview, architecture, data-flow]
-sources: [README.md]
+sources: [README.md, home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs, candidate-pipeline/candidate_pipeline.rs, home-mixer/scorers/ranking_scorer.rs, phoenix/grok.py, grox/plans/plan_master.py]
 ---
 
 # 白话总览 —— For You 是怎么工作的
@@ -92,6 +92,21 @@ flowchart TB
 - 五大组件分别是干嘛的(还是白话):[[the-five-components]]
 - 看不懂某个词:[[glossary]]
 - 具体疑问:[[faq]]
+
+## 出处
+
+本页是对技术页的白话综合,不引入技术页之外的新结论。核心结论的依据如下(精确行号见对应技术页的「源码锚点」):
+
+| 核心结论 | 技术页 | 主要源码 |
+|----------|--------|----------|
+| 候选来自站内 + 站外两路 | [[system-architecture]] | `home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs:250-257` |
+| 几乎删除人工特征 / 规则,靠模型从行为学习 | [[system-architecture]] | `README.md:55,325` |
+| 五阶段流水线(召回→水合→过滤→打分→选择) | [[candidate-pipeline]] | `candidate-pipeline/candidate_pipeline.rs:88-137` |
+| 先召回(粗筛)后排序(精排)两阶段 | [[phoenix-retrieval]]、[[phoenix-ranking]] | `phoenix/README.md` |
+| 排序模型预测多种互动概率,再加权求和 | [[scoring-and-ranking]] | `home-mixer/scorers/ranking_scorer.rs:125-239` |
+| 候选隔离:每条候选单独打分、互不影响 | [[candidate-isolation-masking]] | `phoenix/grok.py:39-71` |
+| 广告插在品牌安全的"空隙",不挨着风险内容 | [[ads-blending]] | `home-mixer/ads/safe_gap_blender.rs`、`partition_organic_blender.rs` |
+| Grox 在后台产出安全 / 质量标签 | [[grox-architecture]] | `grox/plans/plan_master.py`、`grox/engine.py` |
 
 ## 相关页面
 

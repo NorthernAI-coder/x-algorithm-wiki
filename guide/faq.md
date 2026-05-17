@@ -4,12 +4,12 @@ created: 2026-05-17
 updated: 2026-05-17
 type: guide
 tags: [guide, faq, overview]
-sources: [README.md]
+sources: [home-mixer/scorers/ranking_scorer.rs, home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs, phoenix/recsys_retrieval_model.py, home-mixer/ads/safe_gap_blender.rs, grox/classifiers/content/classifier.py]
 ---
 
 # 常见疑问 FAQ
 
-> 读者最常问的问题,用大白话回答。每条都标了"详见"通往技术页。
+> 读者最常问的问题,用大白话回答。每条答案都依据技术页,关键处链接到对应技术页 —— 顺链接即可追到源码。
 
 ## 关于推荐结果
 
@@ -34,7 +34,7 @@ sources: [README.md]
 有用。系统的 AI 会预测你对一条帖子做各种动作的概率,其中包括"点不感兴趣""拉黑""举报"这些**负面动作**。负面动作在算总分时是**负权重** —— 也就是说,模型一旦觉得某帖你可能会"不感兴趣",这条以及类似的帖子分数都会被压低。详见 [[scoring-and-ranking]]。
 
 **Q:我划走、不点赞,系统知道吗?**
-知道。"停留时间"(在一条帖子上停了多久)、"是否没停留就划走"都是模型的输入信号,也是它要预测的目标之一。你不需要点任何按钮,刷的动作本身就是信号。
+知道。"停留时间"(在一条帖子上停了多久)、"是否没停留就划走"都是模型的输入信号,也是它要预测的目标之一。你不需要点任何按钮,刷的动作本身就是信号。详见 [[phoenix-ranking]]。
 
 **Q:拉黑或静音一个人,会怎样?**
 他的内容会被**直接过滤掉** —— 不只是他自己发的帖,还包括他转发的、引用他的帖子,都不会进你的信息流。这一步在打分之前就做了。详见 [[filtering-pipeline]]。
@@ -53,13 +53,17 @@ sources: [README.md]
 ## 关于这个开源项目
 
 **Q:这就是 X 线上跑的真实代码吗?**
-是 `xai-org/x-algorithm` 的开源版,代表性很强,但是**简化快照**:比如公开的模型更小、去掉了完整 Grok 的 MoE(多专家)结构、是某个时间点的冻结版本。架构和线上一致,具体规模和优化有删减。
+是 `xai-org/x-algorithm` 的开源版,代表性很强,但是**简化快照**:比如公开的模型更小、去掉了完整 Grok 的 MoE(多专家)结构、是某个时间点的冻结版本。架构和线上一致,具体规模和优化有删减。详见 [[grok-transformer]]。
 
 **Q:我想自己跑一下,可以吗?**
 ML 部分(Phoenix)可以 —— 仓库带一个端到端推理脚本和一个迷你模型,能在示例语料上跑通"召回 → 排序"。但在线服务(home-mixer、Thunder、Grox)依赖大量 X 内部基础设施,无法独立运行,主要供阅读架构。详见 [[run-pipeline]]。
 
 **Q:这套系统最特别的地方是什么?**
 "几乎没有人工规则"。老式推荐系统靠人写一条条规则,这套系统几乎全删了,改由一个 Grok 改造的 AI 模型从你的行为里直接学。详见 [[how-it-works]]。
+
+## 出处
+
+每条答案只复述技术页中已核验的结论,不引入技术页之外的新说法。答案正文已用「详见」或内联链接标注依据,顺链接进入技术页即可看到 `文件:行号` 源码锚点。本页主要依据:[[scoring-and-ranking]]、[[filtering-pipeline]]、[[phoenix-retrieval]]、[[ads-blending]]、[[grox-classifiers]]。
 
 ## 相关页面
 

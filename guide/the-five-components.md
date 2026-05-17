@@ -4,7 +4,7 @@ created: 2026-05-17
 updated: 2026-05-17
 type: guide
 tags: [guide, overview, component, architecture]
-sources: [README.md]
+sources: [home-mixer/server.rs, candidate-pipeline/candidate_pipeline.rs, thunder/posts/post_store.rs, phoenix/recsys_model.py, grox/engine.py]
 ---
 
 # 白话 —— 五大组件速览
@@ -107,6 +107,18 @@ flowchart TB
 ## 它们怎么配合(一句话串起来)
 
 你点开 For You → **home-mixer** 按 **candidate-pipeline** 模板执行 → 找 **Thunder** 要站内帖、找 **Phoenix** 海选站外帖并打分 → 而 **Grox** 早已在后台把每条帖子的安全/质量标签备好 → 最后 home-mixer 选高分的、插广告,递给你。
+
+## 出处
+
+每个组件的关键源码如下(精确行号、结构体 / 函数名见对应技术页的「源码锚点」):
+
+| 组件 | 技术页 | 关键源码 |
+|------|--------|----------|
+| home-mixer | [[home-mixer-orchestration]] | `home-mixer/server.rs`、`home-mixer/main.rs` |
+| candidate-pipeline | [[candidate-pipeline-framework]]、[[candidate-pipeline]] | `candidate-pipeline/candidate_pipeline.rs`、`candidate-pipeline/lib.rs` |
+| Thunder | [[thunder-in-network-store]]、[[post-store]] | `thunder/posts/post_store.rs`、`thunder/thunder_service.rs` |
+| Phoenix | [[phoenix-retrieval]]、[[phoenix-ranking]]、[[grok-transformer]] | `phoenix/recsys_retrieval_model.py`、`phoenix/recsys_model.py`、`phoenix/grok.py` |
+| Grox | [[grox-architecture]] | `grox/engine.py`、`grox/dispatcher.py`、`grox/plans/plan_master.py` |
 
 ## 相关页面
 

@@ -75,6 +75,8 @@ sources: [phoenix/recsys_model.py, home-mixer/scorers/weighted_scorer.rs]
 - 用大白话与类比讲清,**不放代码、不放公式**
 - 配 Mermaid 图(适用时)
 - 关键处链接到对应的 concept / entity 技术页,供读者深入
+- **核心结论须可追溯**:`sources` frontmatter 列出主要依据的源码文件;正文末尾设「出处」一节,把核心结论对应到技术页与源码文件(精确行号见技术页的「源码锚点」)
+- 白话页不得引入技术页之外、未经核验的新结论
 - frontmatter `type: guide`
 
 ## Update Policy

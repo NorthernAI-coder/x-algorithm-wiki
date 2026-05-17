@@ -25,10 +25,18 @@ tags: [changelog]
 
 ## 配套改动
 
-- `SCHEMA.md`:新增 `guide` 页面类型与「Guide Pages」章;标签体系 Meta 增加 `guide`/`overview`/`glossary`/`faq`
+- `SCHEMA.md`:新增 `guide` 页面类型与「Guide Pages」章(含"核心结论须可追溯"规定);标签体系 Meta 增加 `guide`/`overview`/`glossary`/`faq`
 - `index.md`:顶部新增「白话导览(Guide)」分类
 - `README.md`:目录新增「白话导览 · 先读这个」;徽章与统计更新为 25 页
 - `concepts/system-architecture.md`:相关页面增加到 `[[how-it-works]]` 的链接
+
+## 可追溯性(出处)
+
+白话页虽不放代码,核心结论仍须可追溯:
+
+- 每页 `sources` frontmatter 列出主要依据的源码文件(不再只写 `README.md`)
+- 每页正文末尾设「出处」一节:`how-it-works` / `the-five-components` 用表格把每条核心结论对应到技术页 + 关键源码文件;`glossary` / `faq` 借每行「详见」链到带源码锚点的技术页
+- 精确 `文件:行号` 统一收敛在技术页的「源码锚点」一节,白话页指向技术页、不重复行号
 
 ## 规模变化
 

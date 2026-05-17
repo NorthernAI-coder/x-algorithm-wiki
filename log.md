@@ -33,3 +33,10 @@
 - SCHEMA.md 增 guide 类型与「Guide Pages」章;index.md / README.md 增「白话导览」分类
 - system-architecture.md 相关页面增到 how-it-works 的链接
 - 创建 changelog/2026-05-17-plain-language-guide.md
+
+## [2026-05-17] update | 白话导览补「出处」
+- 反馈:白话页核心结论也要注明出处、有迹可循
+- 4 页白话导览补 `sources` frontmatter(列真实源码文件)与「出处」章节
+- how-it-works / the-five-components:出处表把核心结论对应到技术页 + 关键源码文件
+- glossary / faq:出处说明 + 借「详见」链到带源码锚点的技术页;faq 补全 2 处缺失链接
+- SCHEMA.md「Guide Pages」增"核心结论须可追溯"规定

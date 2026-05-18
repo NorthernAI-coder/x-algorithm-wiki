@@ -6,6 +6,7 @@
   <img src="https://img.shields.io/badge/Knowledge_Base-29_pages-orange?style=for-the-badge&logo=obsidian" alt="Knowledge Base" height="28">
   <img src="https://img.shields.io/badge/Content-5900%2B_lines-purple?style=for-the-badge" alt="Content" height="28">
   <img src="https://img.shields.io/badge/Verified-Source_Code-brightgreen?style=for-the-badge" alt="Verified" height="28">
+  <a href="https://lansu-wiki-web.lank.workers.dev/wiki/cclank/x-algorithm-wiki#index"><img src="https://img.shields.io/badge/Live_Preview-Open-1f6feb?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Live Preview" height="28"></a>
 </p>
 
 > 基于 `xai-org/x-algorithm` 开源仓库源码(commit `0bfc279`,2026-05-15 release)的深度架构知识库。
@@ -19,6 +20,7 @@ X(Twitter)开源的 "For You" 信息流推荐系统由五大组件构成 —— 
 
 - **想快速理解整套系统**:从白话导览读起 —— [how-it-works](guide/how-it-works.md)
 - **想看技术细节**:入口页 [system-architecture](concepts/system-architecture.md)
+- **想免 clone 在线浏览**:[在线预览站点](https://lansu-wiki-web.lank.workers.dev/wiki/cclank/x-algorithm-wiki#index) —— 带侧栏导航
 
 ---
 

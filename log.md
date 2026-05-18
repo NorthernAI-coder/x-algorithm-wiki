@@ -90,3 +90,8 @@
 - 修正实质问题:thunder-in-network-store 代码块锚点 21-41→21-46;grok-transformer 3 处 README.md:5→phoenix/README.md:5(移植与 scaling 说明实在 phoenix README);grox-classifiers BangerInitialScreenResult 补回漏列字段 is_image_editable_by_grok;grox-architecture 2 处组件相对路径补全
 - 晦涩处补约 13 句外科手术式人话/示例:RoPE 旋转直觉、线性同余哈希、multi-hot 动作向量、2*actions-1、-INF 掩码、argpartition 分步、PTOS 雪花 ID、feature switches、DELETE_EVENT_KEY、ASR、嵌入占位符 等
 - 结论:全量核查未发现源码与 wiki 结论的实质性偏差
+
+## [2026-05-18] update | faq 增"恶意刷不感兴趣"问答
+- 读者问:被恶意刷"不感兴趣"会不会害到自己
+- faq 新增一条:打分用的是模型对每个浏览者的预测、非事件计数;RankingScorer 无"按某帖负反馈次数扣分"路径;刷负反馈改不了你的帖给第三方的分;边界——训练管线不在开源仓库
+- 收紧"举报会压制吗"答案里"举报多→分数低"的模糊措辞,改为"模型预测、非计数"

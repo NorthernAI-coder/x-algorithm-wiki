@@ -1,7 +1,7 @@
 ---
 title: run_pipeline.py(端到端推理脚本)
 created: 2026-05-16
-updated: 2026-05-16
+updated: 2026-05-18
 type: entity
 tags: [phoenix, retrieval, ranking, pipeline, jax]
 sources: [phoenix/run_pipeline.py, phoenix/runners.py]
@@ -87,6 +87,8 @@ scores = corpus_repr @ np.asarray(user_repr[0])     # 对全语料点积
 top_idx = np.argpartition(scores, -TOP_K)[-TOP_K:]  # 取 top-K
 top_idx = top_idx[np.argsort(-scores[top_idx])]      # 降序排
 ```
+
+分两步是因为 `argpartition` 只保证"top-K 这批被挑出来",**这 K 个彼此之间并不有序**;所以再对这 K 个(而非全语料)`argsort` 排成降序。先 partition 后只对 K 个排序,比直接对整个语料 `argsort` 快得多。
 
 ### 3. 排序(`run_pipeline.py:312-354`)
 

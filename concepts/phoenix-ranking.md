@@ -44,7 +44,7 @@ flowchart LR
 
 ### 动作嵌入:历史的核心信号
 
-历史里每个帖子附一个多热(multi-hot)动作向量,经 `_get_action_embeddings()`(`recsys_model.py:404-432`)编码:
+历史里每个帖子附一个多热(multi-hot)动作向量 —— 长度为动作种类数,用户对这条帖做过的每种动作对应位置置 1,可同时多个为 1(既点赞又转发);经 `_get_action_embeddings()`(`recsys_model.py:404-432`)编码:
 
 ```python
 actions_signed = (2 * actions - 1).astype(jnp.float32)   # {0,1} → {-1,+1}

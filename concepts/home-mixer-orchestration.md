@@ -1,7 +1,7 @@
 ---
 title: home-mixer 编排层
 created: 2026-05-16
-updated: 2026-05-16
+updated: 2026-05-18
 type: concept
 tags: [home-mixer, orchestration, candidate-pipeline, grpc, source, architecture]
 sources: [home-mixer/main.rs, home-mixer/server.rs, home-mixer/scored_posts_server.rs, home-mixer/for_you_server.rs, home-mixer/candidate_pipeline/for_you_candidate_pipeline.rs, home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs, home-mixer/models/query.rs, home-mixer/models/candidate.rs, home-mixer/selectors/blender_selector.rs, home-mixer/sources/scored_posts_source.rs, home-mixer/sources/phoenix_source.rs, home-mixer/sources/thunder_source.rs]
@@ -68,7 +68,7 @@ flowchart TB
 | `ScoredPostsService` | `ScoredPostsServer` | `get_scored_posts`、`get_debug_scored_posts` | `ScoredPost` 列表(`server.rs:206-268`) |
 | `ForYouFeedService` | `ForYouFeedServer` | `get_for_you_feed`、`get_for_you_feed_urt` | `FeedItem` 列表 / URT 二进制(`server.rs:271-347`) |
 
-`get_debug_scored_posts` 会 `force_sample()` 强制采样,并把完整流水线中间结果序列化成 debug JSON(`scored_posts_server.rs:115-132`)。`get_for_you_feed_urt` 额外把 `FeedItem` 列表经 `urt::make_urt_timeline` 转成 X 的 URT(Unified Rich Timeline)Thrift 格式再二进制序列化(`for_you_server.rs:43-74`)。
+`get_debug_scored_posts` 会 `force_sample()` 强制采样(`server.rs:236-267`),并经 `build_debug_json` 把完整流水线中间结果(retrieved/filtered/selected 候选 + 计数)序列化成 debug JSON(`scored_posts_server.rs:115-132`)。`get_for_you_feed_urt` 额外把 `FeedItem` 列表经 `urt::make_urt_timeline` 转成 X 的 URT(Unified Rich Timeline)Thrift 格式再二进制序列化(`for_you_server.rs:43-74`)。
 
 ## QueryBuilder:请求入口适配器
 
@@ -76,7 +76,7 @@ flowchart TB
 
 1. 校验 `viewer_id != 0`,否则返回 `invalid_argument`
 2. `fetch_viewer_data()` —— 调 Gizmoduck 拿用户角色/订阅等,**200ms 超时**(`VIEWER_ROLES_TIMEOUT_MS`),超时则用 `ViewerData::default()`
-3. `evaluate_feature_switches()` —— 用 `RecipientBuilder`(含 user_id、国家、语言、账号天龄、是否有手机号、角色)匹配 feature switches,得到 `Params`
+3. `evaluate_feature_switches()` —— 用 `RecipientBuilder`(含 user_id、国家、语言、账号天龄、是否有手机号、角色)匹配 feature switches,得到 `Params`。feature switches 是 X 的灰度/实验开关系统:按用户画像命中一组配置值,流水线各组件再从 `Params` 读这些值决定行为(开/关、阈值、走哪个集群等)
 4. 构造 `ScoredPostsQuery`
 
 注意 `in_network_only` 的推导:`proto_query.in_network_only || viewer_data.allow_for_you_recommendations == Some(false)`(`server.rs:75-76`)—— 用户若关闭"为你推荐",则只走站内。
@@ -144,13 +144,13 @@ impl Source<ScoredPostsQuery, FeedItem> for ScoredPostsSource {
 | `TopKScoreSelector` | 内层 | 按 `candidate.score` 降序,取 `params::TOP_K_CANDIDATES_TO_SELECT` 个(`selectors/top_k_score_selector.rs`) |
 | `BlenderSelector` | 外层 | 把 `FeedItem` 按类型分桶,帖子与广告混排,再插入 Prompt / WTF / PushToHome |
 
-`BlenderSelector`(`selectors/blender_selector.rs:24-75`)按 `AdsBlenderType` 参数二选一广告 blender(`"safe_gap"` → `SafeGapAdsBlender`,否则 `PartitionOrganicAdsBlender`,见 [[ads-blending]]);混排后 `insert_prompts` 插到 `PROMPTS_POSITION`、`insert_who_to_follow` 插到 `WHO_TO_FOLLOW_POSITION`、`pin_push_to_home` 钉在位置 0。
+`BlenderSelector`(`home-mixer/selectors/blender_selector.rs:24-75`)按 `AdsBlenderType` 参数二选一广告 blender(`"safe_gap"` → `SafeGapAdsBlender`,否则 `PartitionOrganicAdsBlender`,见 [[ads-blending]]);混排后 `insert_prompts` 插到 `PROMPTS_POSITION`、`insert_who_to_follow` 插到 `WHO_TO_FOLLOW_POSITION`、`pin_push_to_home` 钉在位置 0。
 
 ## 数据模型
 
 ### ScoredPostsQuery
 
-请求贯穿全流水线的查询对象(`models/query.rs:24-95`),~60 个字段。关键分组:
+请求贯穿全流水线的查询对象(`home-mixer/models/query.rs:24-95`),~60 个字段。关键分组:
 
 - **身份/上下文**:`user_id`、`client_app_id`、`country_code`、`language_code`、`request_context`、`cursor`
 - **去重输入**:`seen_ids`、`served_ids`、`bloom_filter_entries`、`impressed_post_ids`
@@ -163,11 +163,11 @@ impl Source<ScoredPostsQuery, FeedItem> for ScoredPostsSource {
 
 ### PostCandidate
 
-内层流水线的候选(`models/candidate.rs:8-55`)。从空壳逐阶段被水合:源阶段只填 `tweet_id`/`author_id`/`served_type`,之后水合器补 `tweet_text`、`phoenix_scores`、`brand_safety_verdict`、`safety_labels`、`visibility_reason`、互动计数等;打分器写入 `weighted_score` 与 `score`。`CandidateHelpers` trait 提供 `get_original_tweet_id()`(转发取源帖)、`as_tweet_info()`(转成喂给模型的 `TweetInfo`)。
+内层流水线的候选(`home-mixer/models/candidate.rs:8-55`)。从空壳逐阶段被水合:源阶段只填 `tweet_id`/`author_id`/`served_type`,之后水合器补 `tweet_text`、`phoenix_scores`、`brand_safety_verdict`、`safety_labels`、`visibility_reason`、互动计数等;打分器写入 `weighted_score` 与 `score`。`CandidateHelpers` trait 提供 `get_original_tweet_id()`(转发取源帖)、`as_tweet_info()`(转成喂给模型的 `TweetInfo`)。
 
 ### UserFeatures
 
-`muted_keywords`、`blocked_user_ids`、`muted_user_ids`、`followed_user_ids`、`subscribed_user_ids`、`follower_count`(`models/user_features.rs:5-14`)。实现 `MValCodec`,从 Strato 的 Thrift 字节反序列化(各字段有固定 field id)。
+`muted_keywords`、`blocked_user_ids`、`muted_user_ids`、`followed_user_ids`、`subscribed_user_ids`、`follower_count`(`home-mixer/models/user_features.rs:5-14`)。实现 `MValCodec`,从 Strato 的 Thrift 字节反序列化(各字段有固定 field id)。
 
 ## 设计决策
 

@@ -86,7 +86,7 @@ if corpus_mask is not None:
 top_k_scores, top_k_indices = jax.lax.top_k(scores, top_k)
 ```
 
-返回 `RetrievalOutput(user_representation, top_k_indices, top_k_scores)`。
+把无效语料的分数压到 `-INF`,是为了保证它们在紧随其后的 `top_k` 里绝不会被选中(相当于从候选集里彻底剔除)。返回 `RetrievalOutput(user_representation, top_k_indices, top_k_scores)`。
 
 ## 输出类型
 

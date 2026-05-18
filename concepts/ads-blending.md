@@ -1,7 +1,7 @@
 ---
 title: 广告混排
 created: 2026-05-16
-updated: 2026-05-16
+updated: 2026-05-18
 type: concept
 tags: [ads, blending, brand-safety, safe-gap, home-mixer, selector]
 sources: [home-mixer/ads/mod.rs, home-mixer/ads/util.rs, home-mixer/ads/safe_gap_blender.rs, home-mixer/ads/partition_organic_blender.rs, home-mixer/models/brand_safety.rs, home-mixer/selectors/blender_selector.rs]
@@ -22,7 +22,7 @@ sources: [home-mixer/ads/mod.rs, home-mixer/ads/util.rs, home-mixer/ads/safe_gap
 
 ## 在哪里发生
 
-外层 [[home-mixer-orchestration|ForYouCandidatePipeline]] 的 `BlenderSelector` 把 `FeedItem` 按类型分桶后,选一个 blender 混排帖子与广告(`selectors/blender_selector.rs:41-47`):
+外层 [[home-mixer-orchestration|ForYouCandidatePipeline]] 的 `BlenderSelector` 把 `FeedItem` 按类型分桶后,选一个 blender 混排帖子与广告(`home-mixer/selectors/blender_selector.rs:41-47`):
 
 ```rust
 let blender: &dyn AdsBlender = match query.params.get(AdsBlenderType).as_str() {
@@ -38,7 +38,7 @@ let mut blended = blender.blend(posts, ads);
 
 ## 品牌安全裁定
 
-`BrandSafetyVerdict` 四档(`models/brand_safety.rs:5-12`):
+`BrandSafetyVerdict` 四档(`home-mixer/models/brand_safety.rs:5-12`):
 
 | 档位 | 值 | 含义 |
 |------|----|----|
@@ -64,7 +64,9 @@ flowchart TB
 
 `MEDIUM_RISK_LABELS` 14 个(NSFW/NSFA 各档、暴力血腥、`DO_NOT_AMPLIFY`、`PDNA`、`EGREGIOUS_NSFW` 等),`LOW_RISK_LABELS` 3 个。`worst_verdict()` 取两个裁定中较差者(枚举值大者)。
 
-`has_avoid(post)`(`ads/util.rs:25-27`)就是 `brand_safety_verdict() == MediumRisk` —— blender 据此判断一个帖子是否"广告需回避"。
+图中 `tweet_id ≥ PTOS_CUTOFF_TWEET_ID`(一个固定常量 `2_054_275_414_225_846_272`)实为一个时间判断 —— X 的 tweet_id 是雪花 ID、随发布时间单调递增,所以"id 大于某常量"等价于"在某时刻之后发布";即截止点之后的新帖若未经 PTOS 复审(无 `PTOS_REVIEWED` 标签),保守地裁为 `MediumRisk`。
+
+`has_avoid(post)`(`home-mixer/ads/util.rs:25-27`)就是 `brand_safety_verdict() == MediumRisk` —— blender 据此判断一个帖子是否"广告需回避"。
 
 ## 策略一:SafeGapAdsBlender
 
@@ -112,7 +114,7 @@ flowchart TB
 5. **交错**:把 `(ad, above, below)` 三元组与剩余 filler 帖(其余安全帖 + 不安全帖,按分降序)交错排布。
 6. **收尾**:`truncate(RESULT_SIZE)`,若末尾是广告则弹出,重排 `position`。
 
-被丢弃的广告会记 `PartitionOrganic.enforcement` 指标(`bsr_drop`/`handle_drop`/`keyword_drop`,`partition_organic_blender.rs:166-190`)。
+被丢弃的广告会记 `PartitionOrganic.enforcement` 指标(`action` 标签取 `drop`/`handle_drop`/`keyword_drop`,分别对应三类丢弃,`partition_organic_blender.rs:166-190`)。
 
 ## 设计决策
 

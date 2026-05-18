@@ -98,7 +98,7 @@ post_store_clone.mark_as_deleted(delete_posts);
 
 v2 用 `Semaphore::new(3)` 限流(`tweet_events_listener_v2.rs:56`)。**仅在启动追赶完成后**,每个批处理才需先 `acquire` 一个许可(`tweet_events_listener_v2.rs:215-219`)—— 这样稳态时摄入最多占 3 个并发,给请求服务留 CPU;而追赶期不限流,尽快灌满内存库。
 
-追赶完成的判定:某线程的 `总 lag < 分区数 × batch_size` 时,认为该分区已基本追上,通过 `tx` 发信号(`tweet_events_listener_v2.rs:189-204`)。`main.rs` 等齐 `kafka_num_threads` 个信号后才 `finalize_init()` 并对外就绪(`main.rs:70-92`)。
+追赶完成的判定:某线程的 `总 lag < 分区数 × batch_size` 时,认为该分区已基本追上,通过 `tx` 发信号(`tweet_events_listener_v2.rs:189-204`)。这里 lag 是消费者还落后多少条未消费的消息;当总落后量已经小于"再 poll 一轮能取的量"(每分区一批 × 分区数)时,就视作追平了。`main.rs` 等齐 `kafka_num_threads` 个信号后才 `finalize_init()` 并对外就绪(`main.rs:70-92`)。
 
 ## 多线程与分区
 

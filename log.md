@@ -77,3 +77,16 @@
 - 反馈:页面缺最终总结 → 末尾新增「总结:六个迷思,错在同一处」(六迷思对照表 + 结论:算法是传导线、不是守门人)
 - 反馈:Grox 例子被误读成"一次性盖章" → 改为准确表述(异步旁路管线、不在 feed 请求路径上;核 grox-architecture)
 - 候选隔离例子补"同一个用户"前提,消除歧义
+
+## [2026-05-18] update | 质量核查:system-architecture / home-mixer-orchestration / ads-blending
+- 逐行核对三页全部源码锚点(正文内联 + 「源码锚点」一节)对 commit 0bfc279
+- system-architecture.md:核对约 25 个锚点,函数名/行号/常量/行为全部一致,未改动
+- home-mixer-orchestration.md:补全 4 处组件内相对路径(blender_selector/query/candidate/user_features → 加 home-mixer/ 前缀);修正 get_debug_scored_posts 描述——force_sample 在 server.rs:236-267,build_debug_json 才是 scored_posts_server.rs:115-132;为 feature switches 补一句术语解释
+- ads-blending.md:补全 3 处组件内相对路径(blender_selector/brand_safety/util → 加 home-mixer/ 前缀);PartitionOrganic.enforcement 指标描述由变量名 bsr_drop 改为实际 action 标签值 drop;为 mermaid 图中 "tweet_id ≥ PTOS 截止" 补一句说明(雪花 ID 比大小等价于比发布时间)
+
+## [2026-05-18] lint | 余下 14 页逐行源码重核 + 晦涩处补人话
+- 承接上一条:对其余 14 页技术页(9 概念 + 5 实体)逐个源码锚点核验 commit 0bfc279
+- 机械层:全 29 页 482 锚点全部指向真实文件与有效行号、无悬空链接、frontmatter 完整、统计一致
+- 修正实质问题:thunder-in-network-store 代码块锚点 21-41→21-46;grok-transformer 3 处 README.md:5→phoenix/README.md:5(移植与 scaling 说明实在 phoenix README);grox-classifiers BangerInitialScreenResult 补回漏列字段 is_image_editable_by_grok;grox-architecture 2 处组件相对路径补全
+- 晦涩处补约 13 句外科手术式人话/示例:RoPE 旋转直觉、线性同余哈希、multi-hot 动作向量、2*actions-1、-INF 掩码、argpartition 分步、PTOS 雪花 ID、feature switches、DELETE_EVENT_KEY、ASR、嵌入占位符 等
+- 结论:全量核查未发现源码与 wiki 结论的实质性偏差

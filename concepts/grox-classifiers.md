@@ -56,7 +56,7 @@ vlm = VisionSampler(GrokModelConfig(**vlm_config.model_dump()))
 
 ## 安全 / PTOS
 
-`safety_ptos.py` 有两个分类器,都服务 `SAFETY_PTOS` 类别。
+PTOS 指 X 的平台安全策略体系(违规内容的分级与判罚规则);这一类分类器就是判断帖子是否触犯、触犯了哪条策略。`safety_ptos.py` 有两个分类器,都服务 `SAFETY_PTOS` 类别。
 
 ### SafetyPtosCategoryClassifier
 
@@ -109,6 +109,7 @@ class BangerInitialScreenResult(BaseModel):
     tags: list[str]
     taxonomy_categories: list[dict] | None
     tweet_bool_metadata: TweetBoolMetadata | None
+    is_image_editable_by_grok: bool | None
     slop_score: int | None
     has_minor_score: float | None
 ```

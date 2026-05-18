@@ -259,7 +259,7 @@ return MHAOutput(final_projection(attn))
 
 ## RotaryEmbedding(RoPE)
 
-`RotaryEmbedding`(`grok.py:229-285`)实现 RoPE(论文 arXiv:2104.09864)。核心是对特征向量做位置相关的旋转:
+`RotaryEmbedding`(`grok.py:229-285`)实现 RoPE(论文 arXiv:2104.09864)。核心是对特征向量做位置相关的旋转:把每个位置的 Q/K 向量按"位置 × 频率"决定的角度转一下 —— 两个 token 做注意力点积时,结果只取决于它们的**旋转角之差**,也就是相对距离。位置信息因此被自然编码进点积,不需要额外的位置嵌入向量。
 
 ```python
 # phoenix/grok.py:221-227
@@ -391,8 +391,8 @@ def ffn_size(emb_size, widening_factor):
 
 | 决策 | 选择 | 理由 |
 |------|------|------|
-| 骨架来源 | 直接移植 Grok-1 而非自研 | 复用 xAI 成熟的 LLM transformer,推荐侧只改输入嵌入和注意力掩码(`README.md:5`) |
-| MoE | 本次发布去掉,改用稠密 `DenseBlock` | mini 版无需专家容量;省去路由复杂度,checkpoint 更小(`README.md:5` 提到省略了 scaling optimizations) |
+| 骨架来源 | 直接移植 Grok-1 而非自研 | 复用 xAI 成熟的 LLM transformer,推荐侧只改输入嵌入和注意力掩码(`phoenix/README.md:5`) |
+| MoE | 本次发布去掉,改用稠密 `DenseBlock` | mini 版无需专家容量;省去路由复杂度,checkpoint 更小(`phoenix/README.md:5` 提到省略了 scaling optimizations) |
 | 归一化 | RMSNorm,不减均值 | 比 LayerNorm 省一次均值计算,现代 LLM 标准做法 |
 | 残差形式 | `h += LN(SubLayer(LN(h)))`,子层前后各归一一次 | Grok-1 原始设计,双重归一稳定残差流尺度 |
 | 注意力缩放 | 可配置 `attn_output_multiplier` 替代 `1/√d` | 缩放因子作为超参可调 |
@@ -404,7 +404,7 @@ def ffn_size(emb_size, widening_factor):
 ## FAQ
 
 **Q:这个 transformer 和完整的 Grok-1 差在哪?**
-A:最大差异是**没有 MoE** —— 本仓库 FFN 是单个稠密 `DenseBlock`,完整 Grok-1 是专家混合。其次 `README.md:5` 提到省略了"specific scaling optimizations"。注意力、RoPE、RMSNorm、软封顶、双归一残差这些核心结构都原样保留。
+A:最大差异是**没有 MoE** —— 本仓库 FFN 是单个稠密 `DenseBlock`,完整 Grok-1 是专家混合。其次 `phoenix/README.md:5` 提到省略了"specific scaling optimizations"。注意力、RoPE、RMSNorm、软封顶、双归一残差这些核心结构都原样保留。
 
 **Q:为什么 decoder 层里 RMSNorm 出现 4 次?**
 A:Grok-1 的残差形式是 `h += LN(SubLayer(LN(h)))`。注意力子层用 2 次(输入归一 + 输出归一),FFN 子层再用 2 次,合计 4 次。标准 Pre-Norm 只在子层输入归一,这里多了输出侧的归一。

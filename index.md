@@ -2,7 +2,7 @@
 
 > 内容目录。每个 wiki 页面按类型与分类列出,附一行摘要。
 > 查询前先读此文件定位相关页面。
-> Last updated: 2026-05-17 | Total pages: 29(7 guides + 17 concepts + 5 entities)| 5900+ lines
+> Last updated: 2026-05-18 | Total pages: 29(7 guides + 17 concepts + 5 entities)| 5900+ lines
 
 ## 白话导览(Guide)
 

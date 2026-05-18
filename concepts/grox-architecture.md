@@ -64,7 +64,7 @@ async def _process_task(self, task: TaskPayload) -> TaskResult:
 
 ## Task:最小执行单元
 
-`Task`(`tasks/task.py:27`)是抽象基类:
+`Task`(`grox/tasks/task.py:27`)是抽象基类:
 
 ```python
 class Task(ABC):
@@ -88,7 +88,7 @@ class Task(ABC):
 
 ## Plan:Task 的 DAG
 
-`Plan`(`plans/plan.py:16`)把若干 Task 编成依赖图:
+`Plan`(`grox/plans/plan.py:16`)把若干 Task 编成依赖图:
 
 ```python
 class Plan(ABC):

@@ -97,6 +97,8 @@ block_candidate_reduce(candidate_post_hashes, candidate_post_embeddings,
 | `build_inputs(batch, embeddings)` | 拼 `[用户\|历史\|候选]`,返回 `(embeddings, padding_mask, candidate_start_offset)` |
 | `__call__(batch, embeddings)` | 完整前向,返回 `RecsysModelOutput` |
 
+`2*actions-1` 把多热的 0/1 动作向量映射到 ±1:这样"未发生某动作"也是 -1 这个有信号的值,而不是 0(0 经投影后无贡献,等于丢掉了"没点赞"这条负向信息)。
+
 ### build_inputs
 
 `recsys_model.py:520-626`。产出 `[B, 1+history_len+num_candidates, D]` 的嵌入序列、对应 padding 掩码、以及 `candidate_start_offset = 1 + S`。历史段会注入 `dwell_time`(取 `history_continuous_actions[:, :, 1]`)的连续嵌入;候选段会注入帖龄桶嵌入。

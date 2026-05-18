@@ -46,7 +46,7 @@ Thunder 在请求路径上,但只承担"取站内候选"这一步。它产出的
 `thunder/main.rs:16-100` 的 `main()` 是整个服务的入口,顺序如下:
 
 ```rust
-// thunder/main.rs:21-41(节选)
+// thunder/main.rs:21-46(节选)
 let post_store = Arc::new(PostStore::new(
     args.post_retention_seconds,
     args.request_timeout_ms,

@@ -17,7 +17,7 @@ Grox 如何把一条帖子(文本 + 图片 + 视频)编码成一个稠密向量,
 
 1. **两代嵌入器**:`MultimodalPostEmbedderV5`(精简、定型)与 `MultimodalPostEmbedderV2`(多模型、多渲染器、实验性)。
 2. **v5 是当前主力**:用 `RECSYS_EMBED_V5` 模型,输出截断到 **1024 维**并 L2 归一化。
-3. **多模态**:文本、图片、视频帧都进同一个文档表示;v5 还能注入视频的 ASR 转写。
+3. **多模态**:文本、图片、视频帧都进同一个文档表示;v5 还能注入视频的 ASR 转写(把视频里的语音自动识别成文字)。
 4. **嵌入是召回的素材**:产出的帖子向量是 [[phoenix-retrieval|召回]]语料的来源之一。
 
 ## V5:精简主力嵌入器
@@ -39,7 +39,7 @@ flowchart LR
     T --> V[嵌入向量]
 ```
 
-1. **渲染**:`V5EmbedPostRenderer.render_for_embedding(post)` 产出"带嵌入占位符的文本"`text_with_pads` 与图片列表。
+1. **渲染**:`V5EmbedPostRenderer.render_for_embedding(post)` 产出"带嵌入占位符的文本"`text_with_pads` 与图片列表。所谓"占位符"就是在文本里第 N 张图该出现的位置插一个特殊记号,编码时模型据此把第 N 张图的内容填回该位置,从而保留图文的相对顺序。
 2. **注入转写**:若传入 `transcript`(视频 ASR 文本),追加 `"\nTranscript: {transcript}"`。
 3. **编码**:`_client.encode_with_embedded_pads_async(text_with_pads, images)` —— 文本里的占位符与图片对齐编码。
 4. **截断归一化**:`_maybe_truncate` 把嵌入截到前 1024 维并 L2 归一化(`multimodal_post_embedder_v5.py:46-56`)。

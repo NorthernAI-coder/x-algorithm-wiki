@@ -28,7 +28,7 @@ Phoenix 模型如何用哈希把任意用户/帖子/作者 ID 映射进固定大
 
 ## 哈希函数
 
-`_hash_ids`(`run_pipeline.py:76-90`)是线性同余哈希:
+`_hash_ids`(`run_pipeline.py:76-90`)是线性同余哈希 —— 即"ID 乘一个常数、加一个常数、再取模",一种极快的整数散列方式:
 
 ```python
 def _hash_ids(ids, scales, biases, modulus, num_buckets):

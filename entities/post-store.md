@@ -96,7 +96,7 @@ pub struct TinyPost {
 
 ### `mark_as_deleted(&self, posts: Vec<TweetDeleteEvent>)`
 
-`post_store.rs:69-83`。从 `posts` 主表移除,写入 `deleted_posts` 墓碑表,并把删除记录挂到特殊 user `DELETE_EVENT_KEY` 的队列下(以便墓碑也能被裁剪)。
+`post_store.rs:69-83`。从 `posts` 主表移除,写入 `deleted_posts` 墓碑表,并把删除记录挂到特殊 user `DELETE_EVENT_KEY` 的队列下(以便墓碑也能被裁剪)。`DELETE_EVENT_KEY` 是一个保留的哨兵 user_id —— 不对应任何真实用户,只是借 `original_posts_by_user` 这张表存一条按删除时间排序的墓碑队列,这样 `trim_old_posts` 扫该表时顺带就把过期墓碑清掉了。
 
 ## 查询方法
 

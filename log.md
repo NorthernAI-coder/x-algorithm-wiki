@@ -62,3 +62,13 @@
 - 与 operating-myths 配对(立/破);每条建议标机制出处,单列「边界」说明算法只分发不创作
 - index.md / README.md 更新为 29 页;6 个相关页补 [[posting-guide]] 交叉链接
 - 创建 changelog/2026-05-17-posting-guide.md
+
+## [2026-05-17] update | 迷思三「破圈」深化
+- 反馈:operating-myths 迷思三只讲了排序的 OON 折扣,没说透
+- 补上更关键的第一道关——召回:站外内容靠双塔相似度 top-K,泛内容向量"对谁都不够像",进不了 top-K(recsys_retrieval_model.py:381-388)
+- 迷思三重写为"窄门(召回)+ 折扣(OON)"两道关;点明"做泛内容破圈"在召回这关方向就反了
+- 同步更新:x-algorithm-运营迷思.md 长文迷思三、guide/posting-guide.md「破圈」节、operating-myths 出处表/相关页面/sources
+
+## [2026-05-17] update | operating-myths:删冗节、深层机制补例
+- 反馈:「怎么认出一篇"真解读"」一节属媒体批评、与算法主题无关 → 删除
+- 反馈:「深层机制」节补案例 → 表格由 3 列改 4 列,7 个机制各加一个具体例子

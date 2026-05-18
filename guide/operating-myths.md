@@ -4,7 +4,7 @@ created: 2026-05-17
 updated: 2026-05-17
 type: guide
 tags: [guide, overview, myths, scoring, ranking]
-sources: [README.md, home-mixer/scorers/ranking_scorer.rs, home-mixer/scorers/vm_ranker.rs, phoenix/grok.py, home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs]
+sources: [README.md, home-mixer/scorers/ranking_scorer.rs, home-mixer/scorers/vm_ranker.rs, phoenix/grok.py, phoenix/recsys_retrieval_model.py, home-mixer/candidate_pipeline/phoenix_candidate_pipeline.rs]
 ---
 
 # 运营迷思 vs 源码真相
@@ -40,11 +40,19 @@ sources: [README.md, home-mixer/scorers/ranking_scorer.rs, home-mixer/scorers/vm
 
 ### 迷思三|「做泛内容就能轻松破圈」
 
-**流行说法**:内容够好,算法自然把你推给全网陌生人。
+**流行说法**:内容做"大众"一点、覆盖面广一点,算法自然把你推给全网陌生人。
 
-**源码怎么说**:候选分**站内**(in-network,你关注的人)和**站外**(out-of-network)。`RankingScorer` 最后一步:站外候选的最终分要乘一个 OON 系数 `effective_oon`,站内候选不乘 —— `Some(false) => after_diversity * effective_oon`(`ranking_scorer.rs:272-275`)。系数取自 feature switch 参数(`OonWeightFactor`、话题场景的 `TopicOonWeightFactor`、新用户的 `NEW_USER_OON_WEIGHT_FACTOR`,见 `ranking_scorer.rs:220-239`)。
+**源码怎么说**:破圈要过**两道关**,多数解读只看到第二道。
 
-**所以**:系统结构上对站外内容设了一道折扣闸。破圈不是不可能,但你的站外帖子带着一个小于 1 的乘数,在和别人关注流里的内容竞争。对陌生受众,你得明显更强才追得平。(边界:具体系数值是线上参数,不在开源仓库 —— 能确定"机制是降权",不能说"降到几折"。)
+**第一道关 —— 召回,真正的闸门。** 你的帖子要进一个陌生人的 For You,前提是先被**召回**进他的候选池。站外内容的召回靠**双塔模型**:一座塔把用户编码成向量、一座塔把每条帖子编码成向量,检索就是算 `用户向量 · 帖子向量` 的相似度、取 top-K(`phoenix/recsys_retrieval_model.py:381-388`;演示脚本从约 53 万条语料里取 200 条)。**没进这个 top-K,你压根不是候选 —— 后面的一切都不会发生。**
+
+**第二道关 —— 排序的 OON 折扣。** 就算被召回了,排序最后一步还会给站外候选乘一个小于 1 的 OON 系数,站内不乘:`Some(false) => after_diversity * effective_oon`(`ranking_scorer.rs:272-275, 220-239`)。
+
+**所以**:破圈是「**窄门 + 折扣**」—— 先靠相似度挤进陌生人的召回 top-K,再带着 <1 的乘数和他关注流里的内容拼分。
+
+而"做泛内容"这个前提,**在第一道关就反了**。召回按相似度排 top-K:一条什么都聊一点的"泛"帖,向量指向一个"平均"方向 —— 对谁都有点像、对谁都不够像;对任何一个具体的人,总有更专更准的帖把 top-K 名额抢走。**破圈靠的不是"泛",恰恰是"锐"** —— 对某一个兴趣簇足够强、足够独特,双塔才能把你高相似地匹配给那一簇人。泛而浅的内容,结构性地哪扇窄门都进不去。
+
+(召回"相似度 top-K"对泛内容的影响是该机制的直接推论;边界:OON 系数的具体数值是线上参数,不在开源仓库 —— 能确定"机制是降权",不能说"降到几折"。)
 
 ### 迷思四|「套爆款模板 / 加特定关键词能骗算法」
 
@@ -72,21 +80,17 @@ sources: [README.md, home-mixer/scorers/ranking_scorer.rs, home-mixer/scorers/vm
 
 ## 那些真正在起作用、却很少被提的机制
 
-| 机制 | 一句话 | 详见 |
-|------|--------|------|
-| **候选隔离注意力掩码** | 每条候选打分时互相看不见,分数只取决于自己 + 用户 | [[candidate-isolation-masking]] |
-| **双塔召回** | 你被推给陌生人的真实路径:用户塔 × 候选塔,比向量相似度 | [[phoenix-retrieval]] |
-| **哈希嵌入** | 用户/帖子太多,用多个哈希函数把 ID 压进固定大小的嵌入表 | [[hash-based-embeddings]] |
-| **`not_dwelled` 负信号** | "划走没停留"是一个被显式建模、给负权重的预测目标 | [[scoring-and-ranking]] |
-| **作者多样性衰减** | 同一作者在你这屏里出现越多,后面越降分 | [[scoring-and-ranking]] |
-| **Grox 后台内容理解** | 在你刷之前,spam / 安全 / 质量(banger)标签已贴好 | [[grox-architecture]] |
-| **几乎删光人工特征** | 工业级推荐系统,打分侧没有人工特征 —— 这本身最反常识 | [[system-architecture]] |
+大多数解读连这套系统真正的"关键词"都没提到 —— 七个机制,各配一个例子:
 
-## 怎么认出一篇"真解读"
-
-1. **看它敢不敢给 `文件:行号`**。给不出来 = 没翻过源码,只是在复述别的解读。
-2. **看它区不区分"打分(学习)"和"过滤(规则)"**。把两者混为一谈 = 没读懂这套系统。
-3. **看它承不承认边界**。一篇斩钉截铁说"权重是 X、做 Y 涨 Z%"的,在编 —— 因为那些数值根本不在开源仓库里。
+| 机制 | 一句话 | 一个例子 | 详见 |
+|------|--------|----------|------|
+| **候选隔离注意力掩码** | 每条候选打分时互相看不见,分数只取决于自己 + 用户 | 你同一条帖,这次和百万赞爆帖同批、下次和无人问津的帖同批,算出来的分**完全一样** —— 所以能缓存复用 | [[candidate-isolation-masking]] |
+| **双塔召回** | 你被推给陌生人的真实路径:用户塔 × 候选塔,比向量相似度 | 一条很专的 Rust 异步运行时帖,没有任何人转发,也能靠向量相似被召回到某个陌生 Rust 开发者面前 | [[phoenix-retrieval]] |
+| **哈希嵌入** | 用户/帖子太多,用多个哈希函数把 ID 压进固定大小的嵌入表 | 几十亿帖子 ID 装不下逐个嵌入 —— 用 2 个哈希函数把任意 ID 映射进同一张固定大小的表 | [[hash-based-embeddings]] |
+| **`not_dwelled` 负信号** | "划走没停留"是一个被显式建模、给负权重的预测目标 | 模型预测"这个用户多半扫一眼就划走你这条标题党" → 这个概率直接作为负分,压低它对该用户的总分 | [[scoring-and-ranking]] |
+| **作者多样性衰减** | 同一作者在你这屏里出现越多,后面越降分 | 你连发的 3 条恰好都被某用户这次刷新选为候选 → 按出现顺序逐条打折,第 1 条满分、后两条递减 | [[scoring-and-ranking]] |
+| **Grox 后台内容理解** | 在你刷之前,spam / 安全 / 质量(banger)标签已贴好 | 你的帖子还没进任何人的信息流,Grox 已在后台给它判好 spam / 安全 / 质量(banger)标签 | [[grox-architecture]] |
+| **几乎删光人工特征** | 工业级推荐系统,打分侧没有人工特征 —— 这本身最反常识 | 老式系统会写"带图 +1 分""粉丝过万 +1 分"这类人工规则;这套系统把它们全删,只留模型从行为里学 | [[system-architecture]] |
 
 ## 边界:开源仓库给了什么、没给什么
 
@@ -104,7 +108,8 @@ sources: [README.md, home-mixer/scorers/ranking_scorer.rs, home-mixer/scorers/vm
 | 22 种行为预测 → 加权求和 | `ranking_scorer.rs:125-170`、`README.md:265-292` |
 | 5 个负向行为,权重为负 | `ranking_scorer.rs:83`、`README.md:292` |
 | 作者多样性衰减 `(1-floor)·decay^N+floor` | `ranking_scorer.rs:186-217` |
-| 站外候选乘 OON 系数降权 | `ranking_scorer.rs:220-239, 272-275` |
+| 破圈第一关:召回靠双塔相似度 top-K | `phoenix/recsys_retrieval_model.py:381-388` |
+| 破圈第二关:站外候选乘 OON 系数降权 | `ranking_scorer.rs:220-239, 272-275` |
 | 候选隔离:因果掩码 + 候选间互不可见 | `phoenix/grok.py:39-71`、`README.md:327-328` |
 | 权重全部来自 feature switch 参数 | `ranking_scorer.rs:42-66` |
 | `VMRanker` 由 `EnableVMRanker` 门控 | `vm_ranker.rs:18-20` |
@@ -116,6 +121,7 @@ sources: [README.md, home-mixer/scorers/ranking_scorer.rs, home-mixer/scorers/vm
 - [[posting-guide]] —— 配对页:把这些机制反过来用 —— 发帖到底该怎么做
 - [[how-it-works]] —— 端到端白话总览
 - [[scoring-and-ranking]] —— 打分三步:加权求和 / 多样性衰减 / OON 降权
+- [[phoenix-retrieval]] —— 双塔召回:破圈的第一道关
 - [[candidate-isolation-masking]] —— 候选隔离掩码的技术细节
 - [[filtering-pipeline]] —— 17 个过滤器:打分靠学习、过滤靠规则
 - [[faq]] —— 常见疑问
